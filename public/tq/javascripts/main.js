@@ -50,9 +50,14 @@ $(document).keydown(function(e) {
       e.preventDefault();
       toggleNextWaypoints();
       break;
-    case 65,66,67,68:
+    case 65:
+    case 66:
+    case 67:
+    case 68:
+    case 69:
       e.preventDefault();
-       moveCurrentPlayer();
+  
+       moveCurrentPlayer(e.keyCode);
        break;
     default:
       break;
@@ -60,94 +65,55 @@ $(document).keydown(function(e) {
 });
 
 
-function toggleNextWaypoints(set){
-
-  if (set) {  // force a visibility
- 
-  }else{
+function toggleNextWaypoints(){
     if (wayPointsShowing) {
       $(".waypoint").hide();
       wayPointsShowing = false;
     }else{
-      $(".waypoint").show();
+      $(".showable").show();
       wayPointsShowing = true;
     }
-  }
-
 }
 
-
-
-  $('.map').on('click', function (event) {
-
-    $('#info').append(event.pageX + "," + event.pageY + "<br>")
-  });
-
  
+function moveCurrentPlayer(key){
+  const keyArray = [65,66,67,68,69];
+  const idx = keyArray.indexOf(key);
+  const wid = currentPlayer.waypoint.links[idx];
+  const toWayPoint = getWaypoint(wid);
+ 
+  currentPlayer.waypoint = toWayPoint;
+  $(".waypoint").hide();
+  wayPointsShowing = false;
+  placePlayer(currentPlayer);
+  setNextWaypoints(currentPlayer);
+  console.log(currentPlayer);
+}
 
-  $('#get-question').on('click', async function (){
-    const q = await getQuestion(9, "multiple");
-    currQuestion = q;
-    let allAnswers = [];
-    debug(JSON.stringify(currQuestion));
-    $('#monster-bubble .question').html(q.question);
-    allAnswers.push(...q.incorrect_answers, q.correct_answer);
+function placeHighlightMaker(markerID, waypoint){
+  const markerDiameter = 50;
+  const left = waypoint.location[0] - (markerDiameter/2);
+  const top= waypoint.location[1]- (markerDiameter/2);
+    $('#'+markerID).css({"left":left,"top":top})
+}
 
-    //console.log('unshuffled', allAnswers);
-    const shuffledAnswers = shuffle(allAnswers);
-    //console.log('shuffled', shuffledAnswers);
-    for (let index = 0; index < shuffledAnswers.length; index++) {
-      let c = '#a' + (index + 1)
+function getWaypoint(waypointID){
+  const wo = findObjectInArrayByProperty(waypoints,"id",waypointID);
+  return wo;
+}
 
-      $(c).html(shuffledAnswers[index]);
-    }
-  });
-
-
-
-  async function getQuestion(cat, type) {
-
-    try {
-      let response = await axios.get(baseTriviaURL, {
-        params: {
-          amount: 1,
-          type: type,
-          token: token
-        }
-      });
-
-      return response.data.results[0];
-    } catch (error) {
-      console.error(error);
-    }
+function setNextWaypoints(player){
+  $(".waypoint").removeClass("showable");
+   
+  currentWaypointLinks = player.waypoint.links;
+  const result = waypoints.filter(w => currentWaypointLinks.includes(w.id));
+  for (let i = 0; i < result.length; i++) {
+    const wp = 'w'+i;
+    placeHighlightMaker(wp, result[i]);
+    $('#'+wp).addClass("showable");
   }
-
-
-
-
-  function placeHighlightMaker(markerID, waypoint){
-    const markerDiameter = 50;
-    const left = waypoint.location[0] - (markerDiameter/2);
-    const top= waypoint.location[1]- (markerDiameter/2);
-      $('#'+markerID).css({"left":left,"top":top})
-  }
-
-  function getWaypoint(waypointID){
-    const wo = findObjectInArrayByProperty(waypoints,"id",waypointID);
-    return wo;
-  }
-
-  function SetNextWaypoints(player){
-    $(".waypoint").removeClass("showable");
-    currentWaypointLinks = player.waypoint.links;
-    const result = waypoints.filter(w => currentWaypointLinks.includes(w.id));
-    for (let i = 0; i < result.length; i++) {
-      const wp = 'w'+i;
-      placeHighlightMaker(wp, result[i]);
-      $(wp).addClass('showable');
-    }
-    
-  }
+  
+}
 
   // move player maker in the UI - waypoint for player must be set first
   function placePlayer(player){
@@ -161,20 +127,16 @@ function toggleNextWaypoints(set){
     }
   }
 
-  function moveCurrentPlayer(){
-
-  }
-
   function getPlayer(id){
     const player = findObjectInArrayByProperty(players,"id",id);
     return player;
   }
 
   function SetUpPlayer(player){
-    startPoint = getWaypoint(2);
+    startPoint = getWaypoint(3);
     player.waypoint = startPoint;
     placePlayer(player);
-    SetNextWaypoints(player);
+    setNextWaypoints(player);
   }
 
 

@@ -19,3 +19,8 @@ function shuffle(ua) {
   }
   return ua;
 }
+
+// help for finding coords of locations
+$('.map').on('click', function (event) {
+  $('#info').append(event.pageX + "," + event.pageY + "<br>")
+});
