@@ -133,7 +133,7 @@ function setNextWaypoints(player){
   }
 
   function SetUpPlayer(player){
-    startPoint = getWaypoint(3);
+    startPoint = getWaypoint(1);
     player.waypoint = startPoint;
     placePlayer(player);
     setNextWaypoints(player);

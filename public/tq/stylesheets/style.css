@@ -34,7 +34,7 @@ map{
   font-size:10px;
   overflow-y: scroll;
   padding:8px;
-  display:normal;
+  display:none;
 }
 
 .player{
