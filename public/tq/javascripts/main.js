@@ -1,28 +1,6 @@
 $(function () {
 
-  const baseTriviaURL = "https://opentdb.com/api.php";
-  const tokenURL = "https://opentdb.com/api_token.php?command=request";
-  const categoryURL = "https://opentdb.com/api_category.php";
-  const waypointURL = "/tq/data/waypoints.json";
-  let currQuestion = {};
-  let waypoints = {};
-  let currentPlayer = {};
-  let wayPointsShowing = false;
-
-  let token = "";
-
-  const players = [
-    {
-      "id":1,
-      "name":"Landor",
-      "waypoint": {},
-      "items":[],
-      "score": 0,
-      "icon" :"knight",
-      "marker":"p1"
-    },
-    {}
-  ]
+ 
 
   // get token to keep and use to keep from getting same question twice
   axios.get(tokenURL).then(resp => {
@@ -56,8 +34,10 @@ $(document).keydown(function(e) {
     case 68:
     case 69:
       e.preventDefault();
-  
-       moveCurrentPlayer(e.keyCode);
+      if (playerMovable) {
+        moveCurrentPlayer(e.keyCode);
+      }
+      
        break;
     default:
       break;
@@ -87,7 +67,17 @@ function moveCurrentPlayer(key){
   wayPointsShowing = false;
   placePlayer(currentPlayer);
   setNextWaypoints(currentPlayer);
-  console.log(currentPlayer);
+  checkForEncounter();
+}
+
+function checkForEncounter(){
+  const hit = randomNumber(1,6);
+   
+  if (hit > 3) {
+    inEncounter = true;
+    playerMovable = false;
+     placeMonster();
+  }
 }
 
 function placeHighlightMaker(markerID, waypoint){
@@ -104,7 +94,6 @@ function getWaypoint(waypointID){
 
 function setNextWaypoints(player){
   $(".waypoint").removeClass("showable");
-   
   currentWaypointLinks = player.waypoint.links;
   const result = waypoints.filter(w => currentWaypointLinks.includes(w.id));
   for (let i = 0; i < result.length; i++) {
@@ -123,8 +112,22 @@ function setNextWaypoints(player){
       const y = player.waypoint.location[1] - (markerSize/2);
       $('#'+player.marker).css({'left':x,'top':y});
     }else{
-      console.log('Player is lost!');
+      console.log('Monster is lost!');
     }
+  }
+
+  function placeMonster(){
+    const markerSize = 35;
+    const monster =  monsters[0];
+    monster.waypoint = currentPlayer.waypoint;
+    const x = monster.waypoint.location[0] - (markerSize/2) - 35;
+    const y = monster.waypoint.location[1] - (markerSize/2);
+    const m1 = '#'+monster.marker;
+
+    $(m1).css({'left':x,'top':y});
+    $(m1).show();
+    $("#player-bubble").show();
+    showQuestion(monster.category);
   }
 
   function getPlayer(id){
