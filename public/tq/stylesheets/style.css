@@ -67,6 +67,23 @@ map{
   z-index:100;
   display:none;
 }
+.player-health{
+  color:red;
+  position: absolute;
+  width:100px;
+  background-color:rgba(255,255,255,.5);
+  left:10px;
+  padding:2px;
+}
+.monster-health{
+  color:purple;
+  position: absolute;
+  width:100px;
+  background-color:rgba(255,255,255,.5);
+  right: 10px;
+  text-align:right;
+  padding:2px;
+}
 
 #monster-bubble{
   position: absolute;
